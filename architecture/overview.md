@@ -6,6 +6,8 @@ This document outlines the architecture for a fully automated Model Context Prot
 
 The design defines how various MCP agentic clients (Cline, Roo Code, Aider, and custom implementations) will be deployed in containers, how they will interact with repositories via team branches, and how a robust CI/CD pipeline will enforce quality standards through multiple stage gates.
 
+---
+
 ## Architecture Overview
 
 The proposed architecture consists of two primary environments:
@@ -20,10 +22,93 @@ The proposed architecture consists of two primary environments:
    - Leverages remote MCP servers deployed on cloud platforms
    - Operates in containerized environments for scalability and reliability
 
-All agents interact with a central GitHub repository following a branching strategy that includes:
+All agents interact with a central GitHub repository following a branching strategy:
 - Feature branches for individual tasks
 - Team branches for coordinated work
 - Main branch for production code
+
+---
+
+## Platform Components
+
+### MCP Server
+- **Purpose**: Central coordination of agents and communication
+- **Technologies**: TypeScript, WebSocket, Redis
+- **Key Features**:
+  - Agent registration and discovery
+  - Message routing
+  - Tool execution
+
+### Jarvis SWE Agent
+- **Purpose**: Specialized agent for software engineering tasks
+- **Technologies**: TypeScript, OpenAI API, WebSocket
+- **Key Features**:
+  - Code generation and review
+  - Terminal interaction
+  - Browser automation
+
+### Frontend Dashboard
+- **Purpose**: User interface for interacting with the platform
+- **Technologies**: Next.js, React, shadcn/ui
+- **Key Features**:
+  - Project management
+  - Agent monitoring
+  - Workflow visualization
+
+---
+
+## Communication Flow
+
+The platform uses a hub-and-spoke model for WebSocket communication:
+
+```
+                    ┌─────────────────┐
+                    │                 │
+                    │  MCP Server     │
+                    │  (Port 8081)    │
+                    │                 │
+                    └─────────────────┘
+                            ▲
+                            │
+                            │ WebSocket
+                            │
+                            ▼
+┌─────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│             │     │                 │     │                 │
+│ Frontend    │◄───►│  Jarvis SWE     │◄───►│  Other Agents   │
+│ (Port 3000) │     │  (Port 3100)    │     │                 │
+│             │     │                 │     │                 │
+└─────────────┘     └─────────────────┘     └─────────────────┘
+```
+
+---
+
+## ASCII Architecture Diagram
+
+```
+┌───────────────────────────────────────────────────────────────────────────┐
+│                       MCP Agentic Architecture                             │
+└───────────────────┬───────────────────────────────────────┬───────────────┘
+                    │                                       │
+    ┌───────────────▼────────────────┐        ┌────────────▼────────────────┐
+    │     Local Environment          │        │     Cloud Environment       │
+    │     (UI Automation)            │        │     (Programmatic API)      │
+    └───────────────┬────────────────┘        └────────────┬────────────────┘
+                    │                                      │
+┌───────────────────▼──────────────────┐    ┌─────────────▼─────────────────┐
+│ ┌──────────────────────────────────┐ │    │ ┌─────────────────────────────┐
+│ │          VS Code Extensions      │ │    │ │     Headless MCP Clients    │
+│ │          (Cline, Roo Code)       │ │    │ │                             │
+│ └──────────────────────────────────┘ │    │ └─────────────────────────────┘
+│ ┌──────────────────────────────────┐ │    │ ┌─────────────────────────────┐
+│ │        Terminal-based Agents     │ │    │ │     Docker Containers       │
+│ │             (Aider)              │ │    │ │                             │
+│ └──────────────────────────────────┘ │    │ └─────────────────────────────┘
+└──────────────────┬───────────────────┘    └──────────────┬────────────────┘
+                   │                                       │
+```
+
+---
 
 ## Key Components
 
@@ -61,6 +146,8 @@ All agents interact with a central GitHub repository following a branching strat
 - **Integration Gate**: System-level integration testing
 - **Release Gate**: Final approval for production release
 
+---
+
 ## Integration Points
 
 The architecture provides integration with:
@@ -71,9 +158,22 @@ The architecture provides integration with:
 4. **MCP Servers**: Using standard MCP protocols
 5. **Monitoring Systems**: With Prometheus metrics integration
 
-## Diagrams
+---
 
-See the following diagrams for visual representations:
+## Technical Deep Dive
+
+See [System Architecture](./system_architecture.md) for detailed technical layers and components.
+
+---
+
+## Future Enhancements
+
+See [Enhanced Architecture Plan](./enhanced_architecture.md) for upcoming improvements and roadmap.
+
+---
+
+## Additional Diagrams
+
 - [MCP Architecture Diagram](../mcp_architecture_diagram.md)
 - [MCP Workflow Diagram](../mcp_workflow_diagram.md)
 - [Container Architecture Diagram](../container_architecture_diagram.md)
